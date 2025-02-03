@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Themes</title>
+</head>
+<body>
+    <h1>Available Themes</h1>
+    <ul>
+        <% themes.forEach(theme => { %>
+            <li>
+                <strong><%= theme.name %></strong>: <%= theme.description %>
+            </li>
+        <% }) %>
+    </ul>
+</body>
+</html>
