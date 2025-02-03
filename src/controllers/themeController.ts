@@ -1,6 +1,8 @@
 import { Request, Response } from 'express';
 import { getThemes, getThemeById } from '../models/theme';
 
+
+
 export const listThemes = (req: Request, res: Response) => {
   const themes = getThemes();
   res.render('themes', { themes });
