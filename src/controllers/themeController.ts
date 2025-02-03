@@ -1,7 +1,7 @@
 import {Request, Response} from 'express';
-import {getThemes} from '../models/theme';
 import {getDb} from '../db';
 import {ObjectId} from 'mongodb';
+import {CustomTheme} from "../dto/customTheme";
 
 
 export const listThemes = async (req: Request, res: Response) => {
@@ -31,7 +31,7 @@ export const getTheme = async (req: Request, res: Response) => {
 };
 
 export const saveTheme = async (req: Request, res: Response) => {
-    const theme = req.body;
+    const theme: CustomTheme = req.body;
     console.log({theme});
     if (!theme) {
         res.status(400).send('Theme not found');
@@ -43,4 +43,33 @@ export const saveTheme = async (req: Request, res: Response) => {
     await collection.insertOne({...theme});
 
     res.json('Theme saved');
+};
+
+export const updateTheme = async (req: Request, res: Response) => {
+    const themeId = req.params.id;
+    const updatedTheme: CustomTheme = req.body;
+
+    if (!updatedTheme) {
+        res.status(400).send('Invalid theme data');
+        return;
+    }
+
+    const collection = getDb().collection('themes');
+
+    try {
+        const result = await collection.updateOne(
+            {_id: new ObjectId(themeId)},
+            {$set: updatedTheme}
+        );
+
+        if (result.matchedCount === 0) {
+            res.status(404).send('Theme not found');
+            return;
+        }
+
+        res.json('Theme updated');
+    } catch (error) {
+        console.error('Error updating theme:', error);
+        res.status(500).send('Internal Server Error');
+    }
 };
