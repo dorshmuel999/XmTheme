@@ -6,9 +6,6 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 (async () => {
-    // MongoDB connection URI and options
-
-
     await connectToDB();
 
 
