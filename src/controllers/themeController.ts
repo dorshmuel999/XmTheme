@@ -1,7 +1,7 @@
 import {Request, Response} from 'express';
-import {getThemes, getThemeById} from '../models/theme';
-import {v4} from 'uuid';
+import {getThemes} from '../models/theme';
 import {getDb} from '../db';
+import {ObjectId} from 'mongodb';
 
 
 export const listThemes = (req: Request, res: Response) => {
@@ -9,16 +9,23 @@ export const listThemes = (req: Request, res: Response) => {
     res.render('themes', {themes});
 };
 
-export const getTheme = (req: Request, res: Response) => {
-    const themeId = parseInt(req.params.id);
-    const theme = getThemeById(themeId);
+export const getTheme = async (req: Request, res: Response) => {
+    const themeId = req.params.id;
+    const collection = getDb().collection('themes');
 
-    if (!theme) {
-        res.status(404).send('Theme not found');
-        return;
+    try {
+        const theme = await collection.findOne({_id: new ObjectId(themeId)});
+
+        if (!theme) {
+            res.status(404).send('Theme not found');
+            return;
+        }
+
+        res.json(theme);
+    } catch (error) {
+        console.error('Error fetching theme:', error);
+        res.status(500).send('Internal Server Error');
     }
-
-    res.json(theme);
 };
 
 export const saveTheme = async (req: Request, res: Response) => {
@@ -29,9 +36,9 @@ export const saveTheme = async (req: Request, res: Response) => {
         return;
     }
 
-    const db = getDb();
+    const collection = getDb().collection('themes');
 
-    await db.collection('themes').insertOne({...theme});
+    await collection.insertOne({...theme});
 
     res.json('Theme saved');
 };
