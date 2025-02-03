@@ -4,9 +4,11 @@ import {getDb} from '../db';
 import {ObjectId} from 'mongodb';
 
 
-export const listThemes = (req: Request, res: Response) => {
-    const themes = getThemes();
-    res.render('themes', {themes});
+export const listThemes = async (req: Request, res: Response) => {
+    const db = getDb();
+    const themes = await db.collection('themes').find().toArray();
+
+    res.json(themes);
 };
 
 export const getTheme = async (req: Request, res: Response) => {
