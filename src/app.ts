@@ -1,6 +1,5 @@
 import express, {Request, Response} from 'express';
 import themeRoutes from './routes/themRoutes';
-import {MongoClient} from 'mongodb';
 import {connectToDB} from "./db";
 
 const app = express();

@@ -1,6 +1,5 @@
 import {Request, Response} from 'express';
 import {getThemes, getThemeById} from '../models/theme';
-import {v4} from 'uuid';
 import {getDb} from '../db';
 
 
