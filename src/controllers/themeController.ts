@@ -1,7 +1,8 @@
 import {Request, Response} from 'express';
 import {getDb} from '../db';
 import {ObjectId} from 'mongodb';
-import {CustomTheme} from "../dto/customTheme";
+import {CustomThemeDto, customThemeSchemaDto} from "../dtos/createCustomThemeDto";
+import {UpdateCustomThemeDto, updateCustomThemeDtoSchema} from "../dtos/updateCustomThemeDtoSchema";
 
 
 export const listThemes = async (req: Request, res: Response) => {
@@ -31,35 +32,37 @@ export const getTheme = async (req: Request, res: Response) => {
 };
 
 export const saveTheme = async (req: Request, res: Response) => {
-    const theme: CustomTheme = req.body;
-    console.log({theme});
-    if (!theme) {
-        res.status(400).send('Theme not found');
+    const theme = req.body;
+
+    const validationResult = customThemeSchemaDto.safeParse(theme);
+    if (!validationResult.success) {
+        res.status(400).json({error: validationResult.error.errors});
         return;
     }
 
     const collection = getDb().collection('themes');
-
-    await collection.insertOne({...theme});
+    const themeToInsert: CustomThemeDto = validationResult.data;
+    await collection.insertOne(themeToInsert);
 
     res.json('Theme saved');
 };
 
 export const updateTheme = async (req: Request, res: Response) => {
     const themeId = req.params.id;
-    const updatedTheme: CustomTheme = req.body;
+    const updatedTheme: UpdateCustomThemeDto = req.body;
 
-    if (!updatedTheme) {
-        res.status(400).send('Invalid theme data');
+    const validationResult = updateCustomThemeDtoSchema.safeParse(updatedTheme);
+    if (!validationResult.success) {
+        res.status(400).json({error: validationResult.error.errors});
         return;
     }
 
     const collection = getDb().collection('themes');
-
+    const themToUpdate: UpdateCustomThemeDto = validationResult.data;
     try {
         const result = await collection.updateOne(
             {_id: new ObjectId(themeId)},
-            {$set: updatedTheme}
+            {$set: themToUpdate}
         );
 
         if (result.matchedCount === 0) {
